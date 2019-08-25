@@ -1,0 +1,13 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres:9.6-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: birthdays
+      POSTGRES_USER: restuser
+      POSTGRES_PASSWORD: sql
+    ports:
+      - 5432:5432
