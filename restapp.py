@@ -44,7 +44,7 @@ def root():
     msg_value = 'Flask REST app for CRUD operations on PostgreSQL.'
     return resp(200, {"message": msg_value})
 
-# Returns all users from database (for testing)
+# Returns all users from the database (for testing)
 @app.route('/users', methods=['GET'])
 def get_users():
     with db_conn() as db:
@@ -69,16 +69,34 @@ def get_user(username):
             msg_value = 'Hello, ' + username + '! Your birthday is in ' + str(left) + ' day(s).'
         return resp(200, {"message": msg_value})
 
-# Saves the given user's name and date of birth in the database
+# Saves the given username and date of birth in the database
 @app.route('/hello/<string:username>', methods=['POST'])
 def post_user(username):
     with db_conn() as db:
-        insert = db.prepare(
-            "INSERT INTO dates (username, \"dateOfBirth\") VALUES ($1, $2)")
+        insert = db.prepare("INSERT INTO dates (username, \"dateOfBirth\") VALUES ($1, $2)")
         json = request.get_json()
         insert (username, json['dateOfBirth'])
-        msg_value = 'New user \'' + username + '\' was added successfully!'
+        msg_value = 'New user \'' + username + '\' was added successfully.'
         return resp(201, {"message": msg_value})
+
+# Updates the given user date of birth in the database
+@app.route('/hello/<string:username>', methods=['PUT'])
+def put_user(username):
+    with db_conn() as db:
+        update = db.prepare("UPDATE dates SET \"dateOfBirth\" = $2 WHERE username = $1")
+        json = request.get_json()
+        update (username, json['dateOfBirth'])
+        msg_value = 'Date of birth for user \'' + username + '\' was updated successfully.'
+        return resp(200, {"message": msg_value})
+
+# Deletes the given user from the database
+@app.route('/hello/<string:username>', methods=['DELETE'])
+def delete_user(username):
+    with db_conn() as db:
+        delete = db.prepare("DELETE FROM dates WHERE username = $1")
+        delete (username)
+        msg_value = 'User \'' + username + '\' was deleted successfully.'
+        return resp(200, {"message": msg_value})
 
 if __name__ == '__main__':
     app.run()
