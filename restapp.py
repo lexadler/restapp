@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Opens database for CRUD
 def db_conn():
-    return open('pq://restuser:sql@localhost:5432/birthdays')
+    return open('pq://restuser:sql@db:5432/birthdays')
 
 # Sending response in JSON
 def to_json(data):
@@ -165,5 +165,4 @@ def delete_user(username):
         return resp(200, {"message": msg})
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run()
+    app.run(host="0.0.0.0", port=int("5000"), debug=True)
