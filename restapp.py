@@ -38,11 +38,71 @@ def days_left(birthday, today):
     days = (next - today).days
     return days
 
+# Checks if username exists in database
+def user_exist(username):
+    with db_conn() as db:
+        check = db.prepare("SELECT COUNT(1) FROM dates WHERE username = $1;")
+        [(exists,)] = check(username)
+        return (bool(exists))
+
+# Validates username in URI
+def user_validate(username, method):
+    if not username.isalpha():
+        (code, error) = (400, 'Username must be a string containing only letters.')
+        return (code, error)
+    elif method in ['GET', 'DELETE'] and not user_exist(username):
+        (code, error) = (404, 'User with username \'' + username + '\' does not exist.')
+        return (code, error)
+    elif method == 'POST' and user_exist(username):
+        (code, error) = (409, 'User already exists. Use \'PUT\' method for updating the date of birth.')
+        return (code, error)
+    (code, error) = (200, False)
+    return (code, error)
+
+# Validates date of birth in JSON
+def validate_birthdate(date_of_birth):
+    try:
+        datetime.strptime(date_of_birth['dateOfBirth'], "%Y-%m-%d")
+        return True
+    except (ValueError, KeyError):
+        return False
+
+def check_birthdate(date_of_birth):
+    birthday = datetime.strptime(date_of_birth['dateOfBirth'], "%Y-%m-%d").date()
+    if birthday < date.today():
+        return True
+    else:
+        return False
+
+# Validates JSON in request body
+def json_validate(json, method):
+    if method in ['POST', 'PUT']:
+        if json is None:
+            (code, error) = (400, 'No JSON was found in the request body. Did you forget to set Content-Type header to application/json?')
+            return (code, error)
+        elif not validate_birthdate(json):
+            (code, error) = (400, 'JSON field \'dateOfBirth\' is missing or value not in \'YYYY-MM-DD\' format.')
+            return (code, error)
+        elif not check_birthdate(json):
+            (code, error) = (422, 'Date of birth must be a date before the today date.')
+            return (code, error)
+    (code, error) = (200, False)
+    return (code, error)
+
+# Validates REST request
+def req_validate(username, json):
+    method = request.method
+    (code, error) = user_validate(username, method)
+    if error:
+        return (code, error)
+    (code, error) = json_validate(json, method)
+    return (code, error)
+
 # Returns info message
 @app.route('/')
 def root():
-    msg_value = 'Flask REST app for CRUD operations on PostgreSQL.'
-    return resp(200, {"message": msg_value})
+    msg = 'Flask REST app for CRUD operations on PostgreSQL.'
+    return resp(200, {"message": msg})
 
 # Returns all users from the database (for testing)
 @app.route('/users', methods=['GET'])
@@ -57,6 +117,9 @@ def get_users():
 # Returns hello birthday message for the given user 
 @app.route('/hello/<string:username>', methods=['GET'])
 def get_user(username):
+    (code, error) = req_validate(username, None)
+    if error:
+        return resp(code, {"error": error})
     with db_conn() as db:
         select = db.prepare("SELECT \"dateOfBirth\" FROM dates WHERE username = $1")
         [(birthdate,)] = select(username)
@@ -64,39 +127,43 @@ def get_user(username):
         today = date.today()
         left = days_left(birthday, today)
         if left == 0:
-            msg_value = 'Hello, ' + username + '! Happy birthday!'
+            msg = 'Hello, ' + username + '! Happy birthday!'
         else:
-            msg_value = 'Hello, ' + username + '! Your birthday is in ' + str(left) + ' day(s).'
-        return resp(200, {"message": msg_value})
+            msg = 'Hello, ' + username + '! Your birthday is in ' + str(left) + ' day(s).'
+        return resp(200, {"message": msg})
 
-# Saves the given username and date of birth in the database
-@app.route('/hello/<string:username>', methods=['POST'])
-def post_user(username):
-    with db_conn() as db:
-        insert = db.prepare("INSERT INTO dates (username, \"dateOfBirth\") VALUES ($1, $2)")
-        json = request.get_json()
-        insert (username, json['dateOfBirth'])
-        msg_value = 'New user \'' + username + '\' was added successfully.'
-        return resp(201, {"message": msg_value})
-
-# Updates the given user date of birth in the database
-@app.route('/hello/<string:username>', methods=['PUT'])
-def put_user(username):
-    with db_conn() as db:
-        update = db.prepare("UPDATE dates SET \"dateOfBirth\" = $2 WHERE username = $1")
-        json = request.get_json()
-        update (username, json['dateOfBirth'])
-        msg_value = 'Date of birth for user \'' + username + '\' was updated successfully.'
-        return resp(200, {"message": msg_value})
+# Saves/updates the given username and date of birth in the database
+@app.route('/hello/<string:username>', methods=['POST', 'PUT'])
+def update_user(username):
+    json = request.get_json()
+    (code, error) = req_validate(username, json)
+    if error:
+        return resp(code, {"error": error})
+    if request.method == 'POST' or request.method == 'PUT' and not user_exist(username):
+        with db_conn() as db:
+            insert = db.prepare("INSERT INTO dates (username, \"dateOfBirth\") VALUES ($1, $2)")
+            insert (username, json['dateOfBirth'])
+            msg = 'New user \'' + username + '\' was added successfully.'
+            return resp(201, {"message": msg})
+    elif request.method == 'PUT':
+        with db_conn() as db:
+            update = db.prepare("UPDATE dates SET \"dateOfBirth\" = $2 WHERE username = $1")
+            update (username, json['dateOfBirth'])
+            msg = 'Date of birth for user \'' + username + '\' was updated successfully.'
+            return resp(204, {})
 
 # Deletes the given user from the database
 @app.route('/hello/<string:username>', methods=['DELETE'])
 def delete_user(username):
+    (code, error) = req_validate(username, None)
+    if error:
+        return resp(code, {"error": error})
     with db_conn() as db:
         delete = db.prepare("DELETE FROM dates WHERE username = $1")
         delete (username)
-        msg_value = 'User \'' + username + '\' was deleted successfully.'
-        return resp(200, {"message": msg_value})
+        msg = 'User \'' + username + '\' was deleted successfully.'
+        return resp(200, {"message": msg})
 
 if __name__ == '__main__':
+    app.debug = True
     app.run()
