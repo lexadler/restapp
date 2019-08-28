@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Opens database for CRUD
 def db_conn():
-    return open('pq://restuser:sql@postgres:5432/birthdays')
+    return open('pq://restuser:sql@localhost:5432/birthdays')
 
 # Sending response in JSON
 def to_json(data):
