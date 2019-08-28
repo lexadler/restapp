@@ -1,3 +1,4 @@
+*.save
 *.swp
 env/
 jenkins_data/

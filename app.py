@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Opens database for CRUD
 def db_conn():
-    return open('pq://restuser:sql@localhost:5432/birthdays')
+    return open('pq://restuser:sql@postgres:5432/birthdays')
 
 # Sending response in JSON
 def to_json(data):
@@ -69,7 +69,7 @@ def validate_birthdate(date_of_birth):
 
 def check_birthdate(date_of_birth):
     birthday = datetime.strptime(date_of_birth['dateOfBirth'], "%Y-%m-%d").date()
-    if birthday <= date.today():
+    if birthday < date.today():
         return True
     else:
         return False
