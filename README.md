@@ -47,7 +47,7 @@ YYYY-MM-DD must be a date before the today date.
 * **Response messages:**
   * If username's birthday is in N days: *Hello, <username>! Your birthday is in N day(s)*
   * If username's birthday is today: *Hello, <username>! Happy birthday!*
-* **curl**: `curl -XGET -H 'localhost:5000/hello/<username>'`
+* **curl**: `curl -XGET 'localhost:5000/hello/<username>'`
 
 ### Deletes the given user from the database.
 * **Request:** DELETE /hello/<username>
