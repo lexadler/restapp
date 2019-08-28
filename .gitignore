@@ -1,0 +1,5 @@
+*.swp
+env/
+jenkins_data/
+__pycache__/
+test-reports/

@@ -5,8 +5,8 @@ services:
     build: .
     restart: always
     ports:
-      - "5000:5000"
-  db:
+      - 5000:5000
+  postgres:
     image: postgres:9.6-alpine
     restart: always
     environment:
@@ -17,3 +17,15 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 5432:5432
+  jenkins:
+    image: jenkinsci/blueocean
+    restart: always
+    user: root
+    ports:
+      - 8080:8080
+      - 8443:8443
+      - 50000:50000
+    volumes:
+      - ./jenkins_data:/var/jenkins_home
+      - ./home:/home
+      - /var/run/docker.sock:/var/run/docker.sock
