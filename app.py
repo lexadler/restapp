@@ -69,7 +69,7 @@ def validate_birthdate(date_of_birth):
 
 def check_birthdate(date_of_birth):
     birthday = datetime.strptime(date_of_birth['dateOfBirth'], "%Y-%m-%d").date()
-    if birthday < date.today():
+    if birthday <= date.today():
         return True
     else:
         return False
