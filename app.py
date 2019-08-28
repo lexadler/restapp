@@ -149,7 +149,7 @@ def update_user(username):
         with db_conn() as db:
             update = db.prepare("UPDATE dates SET \"dateOfBirth\" = $2 WHERE username = $1")
             update (username, json['dateOfBirth'])
-            msg = 'Date of birth for user \'' + username + '\' was updated successfully.'
+#            msg = 'Date of birth for user \'' + username + '\' was updated successfully.'
             return resp(204, {})
 
 # Deletes the given user from the database
