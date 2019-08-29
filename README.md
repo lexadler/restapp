@@ -38,7 +38,7 @@ There are five basic APIs available to use while containers are running. Each ca
 * **curl**: `curl -XPUT -H 'Content-Type: application/json' -d '{"dateOfBirth":"YYYY-MM-DD"}' 'localhost:5000/hello/<username>'`
 
 *Note:*
-<username> must contains only letters.
+\<username\> must contains only letters.
 YYYY-MM-DD must be a date before the today date.
 
 ### Returns hello birthday message for the given user.
