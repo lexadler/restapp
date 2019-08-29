@@ -26,14 +26,14 @@ There are five basic APIs available to use while containers are running. Each ca
 
 ### Saves the given user's name and date of birth in the database.
 
-* **Request:** POST /hello/<username> {“dateOfBirth": "YYYY-MM-DD" }
+* **Request:** POST /hello/\<username\> {“dateOfBirth": "YYYY-MM-DD" }
 * **Response code:** 201 Created or 409 Conflict if user already exists.
-* **Response message:** New user '<username>' was added successfully.
+* **Response message:** *New user '\<username\>' was added successfully.*
 * **curl**: `curl -XPOST -H 'Content-Type: application/json' -d '{"dateOfBirth":"YYYY-MM-DD"}' 'localhost:5000/hello/<username>'`
 
 ### Saves/updates the given user's name and date of birth in the database.
 
-* **Request:** PUT /hello/<username> {“dateOfBirth": "YYYY-MM-DD" }
+* **Request:** PUT /hello/\<username\> {“dateOfBirth": "YYYY-MM-DD" }
 * **Response code:** 204 No Content or 201 Created if user doesn't exist.
 * **curl**: `curl -XPUT -H 'Content-Type: application/json' -d '{"dateOfBirth":"YYYY-MM-DD"}' 'localhost:5000/hello/<username>'`
 
@@ -42,17 +42,17 @@ There are five basic APIs available to use while containers are running. Each ca
 YYYY-MM-DD must be a date before the today date.
 
 ### Returns hello birthday message for the given user.
-* **Request:** GET /hello/<username>
+* **Request:** GET /hello/\<username\>
 * **Response code:** 200 OK or 404 Not Found if user doesn't exist.
 * **Response messages:**
-  * If username's birthday is in N days: Hello, <username>! Your birthday is in N day(s)
-  * If username's birthday is today: Hello, <username>! Happy birthday!
+  * If username's birthday is in N days: *Hello, \<username\>! Your birthday is in N day(s)*
+  * If username's birthday is today: *Hello, \<username\>! Happy birthday!*
 * **curl**: `curl -XGET 'localhost:5000/hello/<username>'`
 
 ### Deletes the given user from the database.
-* **Request:** DELETE /hello/<username>
+* **Request:** DELETE /hello/\<username\>
 * **Response code:** 200 OK or 404 Not Found if user doesn't exist.
-* **Response messages:** User <username> was deleted successfully.
+* **Response messages:** *User \<username\> was deleted successfully.*
 * **curl**: `curl -XDELETE 'localhost:5000/hello/<username>'`
 
 Have fun!
