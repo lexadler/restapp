@@ -4,5 +4,5 @@ itsdangerous==1.1.0
 Jinja2==2.10.1
 MarkupSafe==1.1.1
 py-postgresql==1.2.1
-Werkzeug==0.15.5
+Werkzeug==2.2.3
 xmlrunner==1.7.7
